@@ -44,6 +44,7 @@ import numpy as np
 from PIL import Image
 import torch
 from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
 
 import config
 
@@ -76,7 +77,7 @@ def discover_samples(data_dir: str = config.DATA_DIR):
         if os.path.isdir(os.path.join(data_dir, d))
     ])
 
-    for patient in patient_dirs:
+    for patient in tqdm(patient_dirs, desc="  Scanning patients", leave=False):
         pdir = os.path.join(data_dir, patient)
         # Find all non-mask .tif files
         image_files = sorted(glob.glob(os.path.join(pdir, "*.tif")))
@@ -282,7 +283,7 @@ def get_dataloaders(data_dir: str = config.DATA_DIR,
           f"{len(set(patient_ids))} patients in {data_dir}")
 
     # -- Count class balance --
-    n_pos = sum(1 for _, m in samples
+    n_pos = sum(1 for _, m in tqdm(samples, desc="  Counting labels", leave=False)
                 if np.array(Image.open(m)).max() > 0)
     n_neg = len(samples) - n_pos
     print(f"  Positive (tumor):  {n_pos}  ({n_pos/len(samples):.1%})")

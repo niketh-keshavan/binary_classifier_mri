@@ -29,6 +29,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.metrics import confusion_matrix as sk_confusion_matrix
+from tqdm import tqdm
 
 import config
 
@@ -57,7 +58,7 @@ def collect_predictions(model: nn.Module,
     all_labels = []
     all_probs = []
 
-    for images, labels in loader:
+    for images, labels in tqdm(loader, desc="  Evaluating", leave=False):
         images = images.to(device)        # (B, C, H, W)
         logits = model(images)            # (B, 1)
 

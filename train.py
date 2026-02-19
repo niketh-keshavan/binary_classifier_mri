@@ -49,7 +49,9 @@ def train_one_epoch(model: nn.Module,
     running_loss = 0.0
     n_batches = 0
 
-    for images, labels in tqdm(loader, desc="  train", leave=False):
+    pbar = tqdm(loader, desc="  train", leave=False,
+                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] loss={postfix}")
+    for images, labels in pbar:
         images = images.to(device)      # (B, C, H, W)
         labels = labels.to(device)      # (B, 1)
 
@@ -64,6 +66,7 @@ def train_one_epoch(model: nn.Module,
 
         running_loss += loss.item()
         n_batches += 1
+        pbar.set_postfix_str(f"{running_loss / n_batches:.4f}")
 
     return running_loss / max(n_batches, 1)
 
@@ -84,7 +87,9 @@ def validate(model: nn.Module,
     running_loss = 0.0
     n_batches = 0
 
-    for images, labels in tqdm(loader, desc="  val  ", leave=False):
+    pbar = tqdm(loader, desc="  val  ", leave=False,
+                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] loss={postfix}")
+    for images, labels in pbar:
         images = images.to(device)
         labels = labels.to(device)
 
@@ -93,6 +98,7 @@ def validate(model: nn.Module,
 
         running_loss += loss.item()
         n_batches += 1
+        pbar.set_postfix_str(f"{running_loss / n_batches:.4f}")
 
     return running_loss / max(n_batches, 1)
 
@@ -139,7 +145,9 @@ def fit(model: nn.Module,
 
     print(f"\nTraining on {device} for {num_epochs} epochs\n" + "=" * 50)
 
-    for epoch in range(1, num_epochs + 1):
+    epoch_pbar = tqdm(range(1, num_epochs + 1), desc="Epochs",
+                      unit="epoch", position=0)
+    for epoch in epoch_pbar:
         # ---- Train ----
         train_loss = train_one_epoch(model, train_loader,
                                      loss_fn, optimizer, device)
@@ -154,10 +162,15 @@ def fit(model: nn.Module,
         # ---- Log ----
         history["train_loss"].append(train_loss)
         history["val_loss"].append(val_loss)
-        print(f"Epoch {epoch:3d}/{num_epochs}  |  "
-              f"train_loss: {train_loss:.4f}  |  "
-              f"val_loss: {val_loss:.4f}  |  "
-              f"lr: {current_lr:.6f}")
+        epoch_pbar.set_postfix(
+            train_loss=f"{train_loss:.4f}",
+            val_loss=f"{val_loss:.4f}",
+            lr=f"{current_lr:.6f}",
+        )
+        tqdm.write(f"Epoch {epoch:3d}/{num_epochs}  |  "
+                   f"train_loss: {train_loss:.4f}  |  "
+                   f"val_loss: {val_loss:.4f}  |  "
+                   f"lr: {current_lr:.6f}")
 
     print("=" * 50 + "\nTraining complete.")
     return history
