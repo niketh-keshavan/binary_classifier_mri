@@ -50,7 +50,7 @@ LEARNING_RATE = 3e-3    # Adam starting LR
 LR_DECAY_FACTOR = 0.3   # multiply LR by this on plateau
 LR_PATIENCE = 5         # epochs to wait before decaying
 
-NUM_EPOCHS = 50
+NUM_EPOCHS = 20
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # ──────────────────────────────────────────────
@@ -68,3 +68,9 @@ FOCAL_GAMMA = 2.0
 DATA_DIR = "data/kaggle_3m"   # LGG segmentation dataset root
 CHECKPOINT_DIR = "checkpoints/"
 VAL_SPLIT = 0.2               # fraction of patients held for validation
+
+# ──────────────────────────────────────────────
+# 7. CROSS-VALIDATION
+# ──────────────────────────────────────────────
+NUM_FOLDS = 5                  # k for k-fold patient-level CV
+CV_CHECKPOINT_DIR = "checkpoints/cv/"  # per-fold model saves

@@ -138,7 +138,6 @@ def fit(model: nn.Module,
         mode="min",
         factor=config.LR_DECAY_FACTOR,
         patience=config.LR_PATIENCE,
-        verbose=True,
     )
 
     history = {"train_loss": [], "val_loss": []}
